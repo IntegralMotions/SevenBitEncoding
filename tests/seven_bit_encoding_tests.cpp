@@ -23,8 +23,8 @@ struct EncodedSizeTestCase {
 class EncodedSizeTest : public ::testing::TestWithParam<EncodedSizeTestCase> {};
 
 TEST_P(EncodedSizeTest, GetEncodedSize) {
-    const auto& tc = GetParam();
-    EXPECT_EQ(SevenBitEncoding::getEncodedSize(tc.value), tc.expectedSize);
+    const auto& testCase = GetParam();
+    EXPECT_EQ(SevenBitEncoding::getEncodedSize(testCase.value), testCase.expectedSize);
 }
 
 INSTANTIATE_TEST_SUITE_P(SevenBitEncoding, EncodedSizeTest,
