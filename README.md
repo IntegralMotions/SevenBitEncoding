@@ -12,6 +12,23 @@ This module provides helpers for:
 
 Useful for serial protocols, embedded message framing, and bandwidth‑sensitive communication.
 
+## Install using fetch content
+
+``` CMAKE
+include(FetchContent)
+
+FetchContent_Declare(
+    SevenBitEncoding
+    GIT_REPOSITORY https://github.com/youruser/SevenBitEncoding.git
+    GIT_TAG        v1.0.0
+    GIT_SHALLOW    TRUE
+)
+
+FetchContent_MakeAvailable(SevenBitEncoding)
+
+target_link_libraries(MyApp PRIVATE SevenBitEncoding::SevenBitEncoding)
+```
+
 ## Features
 
 ### Integer Encoding
