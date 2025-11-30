@@ -76,8 +76,8 @@ TEST(SevenBitEncoding, DecodeValueInvalidInput) {
 class GetEncodedBufferSizeTest : public ::testing::TestWithParam<EncodedSizeTestCase> {};
 
 TEST_P(GetEncodedBufferSizeTest, ComputesCorrectSize) {
-    const auto& tc = GetParam();
-    EXPECT_EQ(SevenBitEncoding::getEncodedBufferSize(tc.value), tc.expectedSize);
+    const auto& testCase = GetParam();
+    EXPECT_EQ(SevenBitEncoding::getEncodedBufferSize(testCase.value), testCase.expectedSize);
 }
 
 INSTANTIATE_TEST_SUITE_P(
@@ -98,23 +98,23 @@ struct BufferTestCase {
 class BufferEncodingTest : public ::testing::TestWithParam<BufferTestCase> {};
 
 TEST_P(BufferEncodingTest, EncodeBuffer) {
-    const auto& tc = GetParam();
-    size_t bufSize = SevenBitEncoding::getEncodedBufferSize(tc.input.size());
+    const auto& testCase = GetParam();
+    size_t bufSize = SevenBitEncoding::getEncodedBufferSize(testCase.input.size());
     uint8_t encoded[bufSize];
-    size_t encodedLength = SevenBitEncoding::encodeBuffer(tc.input.data(), tc.input.size(), encoded);
-    EXPECT_EQ(encodedLength, tc.expectedEncoded.size());
+    size_t encodedLength = SevenBitEncoding::encodeBuffer(testCase.input.data(), testCase.input.size(), encoded);
+    EXPECT_EQ(encodedLength, testCase.expectedEncoded.size());
     for (size_t i = 0; i < encodedLength; i++) {
-        EXPECT_EQ(encoded[i], tc.expectedEncoded[i]);
+        EXPECT_EQ(encoded[i], testCase.expectedEncoded[i]);
     }
 }
 
 TEST_P(BufferEncodingTest, DecodeBuffer) {
-    const auto& tc = GetParam();
-    std::vector<uint8_t> decoded(tc.input.size(), 0);
-    size_t decodedLength = SevenBitEncoding::decodeBuffer(tc.expectedEncoded.data(), tc.expectedEncoded.size(),
-                                                          decoded.data(), decoded.size());
-    EXPECT_EQ(decodedLength, tc.input.size());
-    EXPECT_EQ(decoded, tc.input);
+    const auto& testCase = GetParam();
+    std::vector<uint8_t> decoded(testCase.input.size(), 0);
+    size_t decodedLength = SevenBitEncoding::decodeBuffer(
+        testCase.expectedEncoded.data(), testCase.expectedEncoded.size(), decoded.data(), decoded.size());
+    EXPECT_EQ(decodedLength, testCase.input.size());
+    EXPECT_EQ(decoded, testCase.input);
 }
 
 INSTANTIATE_TEST_SUITE_P(
