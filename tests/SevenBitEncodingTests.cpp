@@ -1,4 +1,4 @@
-#include "seven_bit_encoding.h"
+#include "SevenBitEncoding.h"
 #include <gtest/gtest.h>
 #include <random>
 #include <vector>
