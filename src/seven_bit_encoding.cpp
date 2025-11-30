@@ -86,7 +86,7 @@ namespace SevenBitEncoding {
     }
 
     size_t decodeBuffer(const uint8_t* inputBuffer, size_t inputLength, uint8_t* outputBuffer, size_t outputLength) {
-        if (inputBuffer == 0 || outputLength == 0) {
+        if (inputBuffer == nullptr || outputLength == 0) {
             return 0;
         }
         size_t decoded = 0;
