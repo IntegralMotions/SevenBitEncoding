@@ -14,7 +14,6 @@ jobs:
       contents: read
       checks: write
       pull-requests: write
-      actions: write 
     strategy:
       fail-fast: false
       matrix:
@@ -26,68 +25,25 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Install clang tools
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y clang-format clang-tidy
-
       - name: Configure
         run: make BUILD_TYPE=${{ matrix.build_type }} configure
 
-      - name: Code analysis (clang-format + clang-tidy)
-        run: |
-          files_all=$(git ls-files '*.c' '*.cpp' '*.h' '*.hpp')
-          files_cpp=$(git ls-files '*.c' '*.cpp')
-
-          : > analysis.log
-          status=0
-
-          echo "=== clang-format ===" >> analysis.log
-          for f in $files_all; do
-            clang-format --dry-run --Werror "$f" >> analysis.log 2>&1 || status=1
-          done
-
-          echo "" >> analysis.log
-          echo "=== clang-tidy ===" >> analysis.log
-          for f in $files_cpp; do
-            clang-tidy "$f" -p build >> analysis.log 2>&1 || status=1
-          done
-
-          # Emit GitHub annotations
-          while IFS= read -r line; do
-            if echo "$line" | grep -qE ":[0-9]+:[0-9]+: warning:"; then
-              file=$(echo "$line" | cut -d: -f1)
-              row=$(echo "$line" | cut -d: -f2)
-              col=$(echo "$line" | cut -d: -f3)
-              msg=$(echo "$line" | cut -d: -f5-)
-              echo "::warning file=$file,line=$row,col=$col::$msg"
-            elif echo "$line" | grep -qE ":[0-9]+:[0-9]+: error:"; then
-              file=$(echo "$line" | cut -d: -f1)
-              row=$(echo "$line" | cut -d: -f2)
-              col=$(echo "$line" | cut -d: -f3)
-              msg=$(echo "$line" | cut -d: -f5-)
-              echo "::error file=$file,line=$row,col=$col::$msg"
-            fi
-          done < analysis.log
-
-          exit $status
-
-      - name: Publish code analysis report
-        if: always()
-        uses: dorny/analysis-action@v2
+      - name: C/C++ Lint (clang-format + clang-tidy)
+        uses: cpp-linter/cpp-linter-action@v2
+        id: linter
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          name: Code Quality (clang)
-          artifact: code-analysis
-          path: analysis.log
-          reporter: gcc         
-          token: ${{ secrets.GITHUB_TOKEN }}
+          style: 'file'
+          tidy-checks: '' 
+          thread-comments: ${{ github.event_name == 'pull_request' && 'update' }}
+          build-path: build
 
-      - name: Upload raw log
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: code-analysis
-          path: analysis.log
+      - name: Fail on lint issues
+        if: |
+          steps.linter.outputs.clang-format-checks-failed > 0 ||
+          steps.linter.outputs.clang-tidy-checks-failed > 0
+        run: exit 1
 
       - name: Build
         run: make BUILD_TYPE=${{ matrix.build_type }} build
