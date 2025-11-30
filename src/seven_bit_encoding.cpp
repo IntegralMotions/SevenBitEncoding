@@ -89,7 +89,6 @@ namespace SevenBitEncoding {
         if (inputBuffer == nullptr || outputLength == 0) {
             return 0;
         }
-        int i = 5;
         size_t decoded = 0;
         size_t encodedIndex = 0;
         int bitShiftIndex = 0;
