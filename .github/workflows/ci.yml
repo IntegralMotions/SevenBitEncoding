@@ -14,6 +14,7 @@ jobs:
       contents: read
       checks: write
       pull-requests: write
+      actions: write 
     strategy:
       fail-fast: false
       matrix:
@@ -33,42 +34,26 @@ jobs:
       - name: Configure
         run: make BUILD_TYPE=${{ matrix.build_type }} configure
 
-      # One combined step for clang-format + clang-tidy + annotations + log
-      - name: Code analysis (clang-format + clang-tidy with annotations)
+      - name: Code analysis (clang-format + clang-tidy)
         run: |
           files_all=$(git ls-files '*.c' '*.cpp' '*.h' '*.hpp')
           files_cpp=$(git ls-files '*.c' '*.cpp')
 
-          # Single combined log for everything
           : > analysis.log
           status=0
 
-          echo "=== clang-format check ===" | tee -a analysis.log
-          if [ -n "$files_all" ]; then
-            for f in $files_all; do
-              echo "clang-format: $f" >> analysis.log
-              # --dry-run + --Werror -> no changes, but non-zero exit on misformat
-              clang-format --dry-run --Werror "$f" >> analysis.log 2>&1 || status=1
-            done
-          else
-            echo "No C/C++ files to format." | tee -a analysis.log
-          fi
+          echo "=== clang-format ===" >> analysis.log
+          for f in $files_all; do
+            clang-format --dry-run --Werror "$f" >> analysis.log 2>&1 || status=1
+          done
 
           echo "" >> analysis.log
-          echo "=== clang-tidy analysis ===" | tee -a analysis.log
-          if [ -n "$files_cpp" ]; then
-            for f in $files_cpp; do
-              echo "clang-tidy: $f" >> analysis.log
-              clang-tidy "$f" -p build >> analysis.log 2>&1 || status=1
-            done
-          else
-            echo "No C/C++ source files for clang-tidy." | tee -a analysis.log
-          fi
+          echo "=== clang-tidy ===" >> analysis.log
+          for f in $files_cpp; do
+            clang-tidy "$f" -p build >> analysis.log 2>&1 || status=1
+          done
 
-          echo "" >> analysis.log
-          echo "=== GitHub annotations ===" >> analysis.log
-
-          # Turn both clang-format and clang-tidy diagnostics into GitHub annotations
+          # Emit GitHub annotations
           while IFS= read -r line; do
             if echo "$line" | grep -qE ":[0-9]+:[0-9]+: warning:"; then
               file=$(echo "$line" | cut -d: -f1)
@@ -87,11 +72,21 @@ jobs:
 
           exit $status
 
-      - name: Upload analysis log
+      - name: Publish code analysis report
+        if: always()
+        uses: dorny/analysis-action@v2
+        with:
+          name: Code Quality (clang)
+          artifact: code-analysis
+          path: analysis.log
+          reporter: gcc         
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload raw log
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: code-analysis-${{ matrix.os }}-${{ matrix.build_type }}
+          name: code-analysis
           path: analysis.log
 
       - name: Build
