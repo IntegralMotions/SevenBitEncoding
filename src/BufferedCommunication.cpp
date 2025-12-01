@@ -1,4 +1,4 @@
-#include "BufferedCommunication.h"
+#include "IntegralCommunication/BufferedCommunication.h"
 
 #include <cstring>
 

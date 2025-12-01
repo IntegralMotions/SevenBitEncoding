@@ -1,14 +1,10 @@
-// SevenBitEncodedCommunicationTests.cpp
-
-#include "Communication.h"
-#include "SevenBitEncodedCommunication.h"
-#include "SevenBitEncoding.h"
-
-#include <gtest/gtest.h>
-
+#include "IntegralCommunication/Communication.h"
+#include "IntegralCommunication/SevenBitEncodedCommunication.h"
+#include "IntegralCommunication/SevenBitEncoding.h"
 #include <algorithm>
 #include <cstdint>
 #include <cstring>
+#include <gtest/gtest.h>
 #include <vector>
 
 // ---------------------------

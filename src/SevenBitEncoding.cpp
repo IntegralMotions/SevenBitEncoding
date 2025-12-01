@@ -1,4 +1,4 @@
-#include "SevenBitEncoding.h"
+#include "IntegralCommunication/SevenBitEncoding.h"
 #include <cstddef>
 #include <cstdint>
 

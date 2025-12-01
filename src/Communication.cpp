@@ -1,4 +1,4 @@
-#include "Communication.h"
+#include "IntegralCommunication/Communication.h"
 
 void Communication::write(const uint8_t* data, size_t size) {
     writeImpl(data, size);

@@ -1,9 +1,7 @@
-#include "BufferedCommunication.h"
-
-#include <gtest/gtest.h>
-
+#include "IntegralCommunication/BufferedCommunication.h"
 #include <algorithm>
 #include <cstdint>
+#include <gtest/gtest.h>
 #include <vector>
 
 class TestBufferedCommunication : public BufferedCommunication {

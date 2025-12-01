@@ -1,10 +1,8 @@
-#include "Communication.h"
-
-#include <gtest/gtest.h>
-
+#include "IntegralCommunication/Communication.h"
 #include <algorithm>
 #include <cstdint>
 #include <cstring>
+#include <gtest/gtest.h>
 #include <vector>
 
 class TestCommunication : public Communication {
