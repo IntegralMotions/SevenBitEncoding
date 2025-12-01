@@ -45,16 +45,13 @@ class FakeCommunication : public Communication {
     std::vector<uint8_t> _incoming;
 };
 
-// Use reasonably sized buffers for tests
-using EncodedComm = SevenBitEncodedCommunication<128, 128>;
-
 // ---------------------------
 // Tests
 // ---------------------------
 
 TEST(SevenBitEncodedCommunicationTests, WriteMessageEncodesAndForwards) {
     FakeCommunication fake;
-    EncodedComm comm(fake);
+    SevenBitEncodedCommunication comm(fake, 128, 128);
 
     const std::vector<uint8_t> payload = {0x01, 0x02, 0xFF, 0x10};
 
@@ -75,7 +72,7 @@ TEST(SevenBitEncodedCommunicationTests, WriteMessageEncodesAndForwards) {
 
 TEST(SevenBitEncodedCommunicationTests, ReadMessageReturnsFalseWhenNoData) {
     FakeCommunication fake;
-    EncodedComm comm(fake);
+    SevenBitEncodedCommunication comm(fake, 128, 128);
 
     uint8_t out[32] = {};
     size_t outLen = 0;
@@ -87,7 +84,7 @@ TEST(SevenBitEncodedCommunicationTests, ReadMessageReturnsFalseWhenNoData) {
 
 TEST(SevenBitEncodedCommunicationTests, ReadMessageNonBlockingPartialThenFull) {
     FakeCommunication fake;
-    EncodedComm comm(fake);
+    SevenBitEncodedCommunication comm(fake, 128, 128);
 
     const std::vector<uint8_t> payload = {0x10, 0x20, 0x30, 0x40};
 
@@ -126,7 +123,7 @@ TEST(SevenBitEncodedCommunicationTests, ReadMessageNonBlockingPartialThenFull) {
 
 TEST(SevenBitEncodedCommunicationTests, ReadTwoMessagesBackToBack) {
     FakeCommunication fake;
-    EncodedComm comm(fake);
+    SevenBitEncodedCommunication comm(fake, 128, 128);
 
     const std::vector<uint8_t> msg1 = {0x01, 0x02, 0x03};
     const std::vector<uint8_t> msg2 = {0xAA, 0xBB, 0xCC, 0xDD};
